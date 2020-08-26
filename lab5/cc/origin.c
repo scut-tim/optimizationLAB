@@ -105,7 +105,7 @@ int main(){
 
 //int stbi_write_bmp(char const *filename, int w, int h, int comp, const void *data);
 
-/*
+
     //边缘
     int edges1filter[25] = {
         -1, 0, 0, 0, 0,
@@ -115,11 +115,13 @@ int main(){
         0, 0, 0, 0, -1,
     };
 
-*/
-int sharpen2filter[25] = { -1, -1, -1, -1, -1, -1, 2, 2, 2, -1, -1, 2, 8, 2, -1, -1, 2, 2, 2, -1, -1, -1, -1, -1, -1, };
 
+int sharpen2filter[25] = { -1, -1, -1, -1, -1, -1, 2, 2, 2, -1, -1, 2, 8, 2, -1, -1, 2, 2, 2, -1, -1, -1, -1, -1, -1, };
+int MotionBlurfilter[81] = 
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 };
+int edges2filter[9] = { -1, -1, -1, -1, 8, -1, -1, -1, -1 };
 	
-    Convolution2D(imgData, imgWidth, imgHeight, imgChannels, sharpen2filter, 5, 1, 0);
+    Convolution2D(imgData, imgWidth, imgHeight, imgChannels, edges1filter, 5, 1, 0);
     printf("done..............\n");
     stbi_image_free(imgData);
 }

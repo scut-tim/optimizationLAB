@@ -52,13 +52,13 @@ void Convolution2D(unsigned char * data,
 							//g += data[pos + 1] * ( * pfilter);
 							//b += data[pos + 2] * ( * pfilter);
 								
-							uint8x8_t datax8 = vld1_u8(&data[pos]);
-							uint16x8_t datax8Mv = vmovl_u8(datax8);//move
-							int32x4_t filterx4 = vdupq_n_s32(filter[fidx+(fy)]);//dup filter
-							uint16x4_t datax4 = vget_low_u16(datax8Mv);//get low 3 wanted data
-							uint32x4_t datax4_32 = vmovl_u16(datax4);//trans to 32
-							int32x4_t datax4_32_s = vreinterpretq_s32_u32(datax4_32);
-							rgb = vmlaq_s32(rgb,datax4_32_s,filterx4);
+							//uint8x8_t datax8 = vld1_u8(&data[pos]);
+							//uint16x8_t datax8Mv = vmovl_u8(datax8);//move
+							//int32x4_t filterx4 = vdupq_n_s32(filter[fidx+(fy)]);//dup filter
+							//uint16x4_t datax4 = vget_low_u16(datax8Mv);//get low 3 wanted data
+							//uint32x4_t datax4_32 = vmovl_u16(datax4);//trans to 32
+							//int32x4_t datax4_32_s = vreinterpretq_s32_u32(datax4_32);
+							//rgb = vmlaq_s32(rgb,datax4_32_s,filterx4);
 							//endIN = clock();
 							//if(endIN - startIN < 1)count0++;
 							//if(endIN - startIN == 1)count1++;
@@ -69,15 +69,20 @@ void Convolution2D(unsigned char * data,
 							
 							
 					//		uint32x4_t vld1q_u32 (uint32_t const * ptr)
-							
+							int dx4[4];
+							for(int i = 0;i<3;i++)dx4[i] = data[pos+i];
+							dx4[3] = 0;
+							int32x4_t dx4_v = vld1q_s32(dx4);
+							int32x4_t fx4_v = vdupq_n_s32(filter[fidx+(fy)]);
+							rgb = vmlaq_s32(rgb,dx4_v,fx4_v);
 							
 						}
 					}
-					int32x2_t rg = vget_low_s32(rgb);
-                                        int32x2_t bb = vget_high_s32(rgb);
-					r = vget_lane_s32(rg,0);
-					g = vget_lane_s32(rg,1);
-					b = vget_lane_s32(bb,0);
+					
+                                        
+					r = vgetq_lane_s32(rgb,0);
+					g = vgetq_lane_s32(rgb,1);
+					b = vgetq_lane_s32(rgb,2);
 					tmpData[p] = Clamp2Byte(((factor * r) >> 8) + bias);
 					tmpData[p + 1] = Clamp2Byte(((factor * g) >> 8) + bias);
 					tmpData[p + 2] = Clamp2Byte(((factor * b) >> 8) + bias);
@@ -126,7 +131,7 @@ int main(){
 //int stbi_write_bmp(char const *filename, int w, int h, int comp, const void *data);
 
     //边缘
-/*    int edges1filter[25] = {
+    int edges1filter[25] = {
         -1, 0, 0, 0, 0,
         0, -2, 0, 0, 0,
         0, 0, 6, 0, 0,
@@ -134,12 +139,12 @@ int main(){
         0, 0, 0, 0, -1,
     };
     
-*/
+
 
 	int sharpen2filter[25] = { -1, -1, -1, -1, -1, -1, 2, 2, 2, -1, -1, 2, 8, 2, -1, -1, 2, 2, 2, -1, -1, -1, -1, -1, -1, };
 
 	
-    Convolution2D(imgData, imgWidth, imgHeight, imgChannels, sharpen2filter, 5, 1, 0);
+    Convolution2D(imgData, imgWidth, imgHeight, imgChannels, edges1filter, 5, 1, 0);
     printf("done.........");
     stbi_image_free(imgData);
 }
